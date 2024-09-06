@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Menu</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        ::-webkit-scrollbar {
+        width: 2px;
+      }
+      
+      ::-webkit-scrollbar {
+        width: 2px;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background-color: #888; /* Color of the thumb */
+        border-radius: 2px;
+      }
+
+      ::-webkit-scrollbar-thumb:hover {
+        background-color: #555; /* Color of the thumb on hover */
+      }
+       /* Estilo por defecto para pantallas grandes (computadoras) */
+        #body {
+            background-size: cover; /* Cubrir toda el área */
+            background-position: center; /* Centrar la imagen */
+            background-repeat: no-repeat; /* Evitar que la imagen se repita */
+        }
+
+        /* Ajustes específicos para tablets y dispositivos móviles */
+        @media (max-width: 1024px) {
+            #body {
+                background-size: cover; /* Mostrar la imagen completa */
+                background-position: center; /* Centrar la imagen */
+            }
+        }
+    </style>
+  </head>
+  <body id="body" class="container mx-auto" style="background-color: black; color: white; background-image: url('https://drive.google.com/file/d/1RDe1WcFzWKuRHy9_FeEi-l5D8CWWHy7x/view?usp=sharing'); background-position-y: 115px; /* Ajusta la posición vertical de la imagen de fondo */">
+    <div>
+      <div class="grid grid-cols-3">
+        <div class="col-span-3 md:col-span-1 flex justify-center md:block">
+          <img id="logo_img" src="<?= logo ?>" alt="Logo" class="h-24" />
+        </div>
+        <div
+          class="col-span-3 md:col-span-2 px-4 md:flex md:flex-row-reverse justify-center items-end"
+        >
+          <div class="md:w-1/2 md:ml-4">
+            <select
+              id="category"
+              name="category"
+              onchange="setItems()"
+              class="block w-full rounded-md p-2 text-black border border-black rounded-lg bg-gray-50 focus:border-indigo-700"
+            >
+              <option selected value="">Todos</option>
+            </select>
+          </div>
+          <div class="flex-1 mt-4 md:w-1/2">
+            <label
+              for="default-search"
+              class="mb-2 text-sm font-medium text-gray-900 sr-only"
+              >Buscar</label
+            >
+            <div class="relative">
+              <div
+                class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none"
+              >
+                <svg
+                  class="w-4 h-4 text-gray-500 dark:text-gray-400"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+                  />
+                </svg>
+              </div>
+              <input
+                type="search"
+                id="search"
+                onkeyup="setItems()"
+                class="block w-full p-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:border-indigo-700"
+                placeholder="Buscar"
+                required
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mt-4 mb-1 p-0.5 bg-gray-50"></div>
+      <div class="divider divide-y-2 px-4 pb-10">
+        <ul
+          role="list"
+          id="menu_items"
+          class="divide-y md:divide-y-0 divide-gray-100 md:grid grid-cols-12 gap-3"
+        >
+        </ul>
+      </div>
+    </div>
+    <script
+      src="https://code.jquery.com/jquery-3.6.0.min.js"
+      integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+      crossorigin="anonymous"
+    ></script>
+    <script>
+      const data = JSON.parse('<?= data ?>');
+
+      const init = () => {
+    $("#logo_img").attr('src', "<?= logo ?>"); // Usa la imagen del logo correctamente asignada
+    $("#body").css('background-image', `url(${data.settings.background_image})`); // Establece la imagen de fondo
+    setCategory();
+    setItems();
+    };
+
+
+      const setCategory = () => {
+        const $category = $('#category');
+
+        const { categories } = data;
+        categories.forEach((name) => {
+          const $option = $(`<option value="${name}">${name}</option>`);
+          $category.append($option);
+        });
+      };
+
+      const setItems = () => {
+        const $category = $('#category');
+        const selected_category = $category.val();
+
+        const $menu_items = $('#menu_items');
+        $menu_items.empty();
+
+        const search_text = $('#search').val().toLowerCase();
+        const { categories, menu_items, settings } = data;
+
+        const category_list = selected_category
+          ? [selected_category]
+          : categories;
+
+        const menu = {};
+
+        category_list.forEach((category) => {
+          menu_items.forEach((item) => {
+            const { name, price, category: item_category } = item;
+            if (category !== item_category) {
+              return;
+            }
+
+            if (search_text && name.toLowerCase().indexOf(search_text) === -1) {
+              return;
+            }
+
+            if (!menu[category]) {
+              menu[category] = [item];
+            } else {
+              menu[category].push(item);
+            }
+          });
+        });
+
+        category_list.forEach((category, i) => {
+          const items = menu[category];
+          if (!items) {
+            return;
+          }
+
+          const $category = $(`<li class="pt-6 sticky col-span-12">
+                                 <h3 id="cat_${i}" class="text-lg font-medium leading-6 text-white"></h3>
+                               </li>`);
+          $menu_items.append($category);
+          $(`#cat_${i}`).text(category);
+
+          items.forEach((item, j) => {
+            const { id, name, price, category, description } = item;
+            const $item = $(`
+              <li class="md:col-span-6 lg:col-span-4 h-full">
+                <div class="h-full flex items-stretch md:border border-gray-200 md:rounded-md p-2 justify-between gap-x-6 py-3">
+                    <div class="flex-1">
+                      <p id="item_name${id}" class="text-base font-semibold leading-6 text-white"></p>
+                      <p id="item_price${id}" class="mt-1 truncate text-sm leading-5 text-white"></p>
+                      <p id="item_description${id}" class="mt-1 overflow-hidden whitespace-normal text-xs leading-5 text-white"></p>
+                    </div>
+                    
+                </div>
+              </li>
+            `);
+            $menu_items.append($item);
+            $(`#item_name${id}`).text(name);
+            $(`#item_price${id}`).text(`${settings.currency}${price}`);
+
+            if (String(description).length > 80) {
+              $(`#item_description${id}`).text(
+                String(description).substring(0, 80) + '...'
+              );
+
+              const $more = $(
+                `<button class="text-xs text-white hover:text-gray-600" onclick="expandItem('${id}')">Más</button>`
+              );
+              $(`#item_description${id}`).append($more);
+            } else {
+              $(`#item_description${id}`).text(String(description));
+            }
+          });
+        });
+      };
+
+      const expandItem = (id) => {
+        const { categories, menu_items } = data;
+        const item = menu_items.find((item) => item.id === id);
+        const { description } = item;
+        $(`#item_description${id}`).text(description);
+      };
+
+      init();
+    </script>
+  </body>
+</html>
