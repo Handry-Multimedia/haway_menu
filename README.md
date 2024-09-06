@@ -10,7 +10,7 @@ Este proyecto es un menú digital accesible a través de un código QR. Está di
 
 ## Estructura del Proyecto
 
-- `menu.html`: El archivo principal HTML que contiene el menú digital.
+- `index.html`: El archivo principal HTML que contiene el menú digital.
 - `styles.css`: El archivo CSS que define el estilo del menú.
 - `script.js`: El archivo JavaScript que maneja la funcionalidad del menú.
 
